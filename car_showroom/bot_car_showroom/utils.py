@@ -1,4 +1,3 @@
-from aiogram import Bot
 from aiogram.enums import ChatMemberStatus
 from aiogram.types import FSInputFile
 

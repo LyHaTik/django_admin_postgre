@@ -1,5 +1,3 @@
-# services.py
-
 from .config import bot
 
 
