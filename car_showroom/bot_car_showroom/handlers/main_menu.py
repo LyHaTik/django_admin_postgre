@@ -7,17 +7,17 @@ from ..keyboards import get_paginated_ik, get_cart_items_ik
 from ..state import CatalogStates, CartStates
 
 
-# Ловим "Каталог". 
+# Ловим "Каталог"
 async def catalog_handler_message(message: Message, state: FSMContext):
     await message.delete()
     categories = await get_categories()
-    await message.answer("Выберите категорию:", reply_markup=get_paginated_ik(items=categories))
     
-    await state.update_data(cart={})
+    await state.update_data(categories=categories, cart={})
     await state.set_state(CatalogStates.selecting_category)
-    print(await state.get_state())
+    
+    await message.answer("Выберите категорию:", reply_markup=get_paginated_ik(items=categories))
 
-# Ловим "Корзина".
+# Ловим "Корзина"
 async def cart_handler_message(message: Message, state: FSMContext):
     await message.delete()
     user_id = int(message.from_user.id)
@@ -31,7 +31,6 @@ async def cart_handler_message(message: Message, state: FSMContext):
     await message.answer(text, reply_markup=get_cart_items_ik(cart))
     
     await state.set_state(CartStates.viewing_cart)
-    print(await state.get_state())
     await state.update_data(cart=cart)
 
 

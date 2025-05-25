@@ -14,9 +14,10 @@ async def start_handler(message: types.Message, state: FSMContext):
     if await is_subscribed(user_id):
         created = await create_user(user_id)
         if created:
-            await message.answer("Добро пожаловать!", reply_markup=main_menu_kb())
+            text = "Добро пожаловать!"
         else:
-            await message.answer("С возвращением!", reply_markup=main_menu_kb())
+            text = "С возвращением!"
+        await message.answer(text, reply_markup=main_menu_kb())
         await state.update_data(cart={})
     else:
         invite_link = f"https://t.me/{CHANNEL_NAME.lstrip('@')}"

@@ -13,9 +13,9 @@ from ..utils import parse_data, make_order_id
 # Ловим "db_minus", "db_plus:"
 async def change_quantity_handler(callback: CallbackQuery):
     user_id = int(callback.from_user.id)
-    car_id, quantity = await parse_data(callback.data)
+    product_id, quantity = await parse_data(callback.data)
 
-    await change_quantity_to_cart(user_id=user_id, car_id=car_id, quantity=quantity)
+    await change_quantity_to_cart(user_id=user_id, product_id=product_id, quantity=quantity)
     cart = await get_cart(user_id)
 
     await callback.message.edit_reply_markup(reply_markup=get_cart_items_ik(cart))
@@ -23,18 +23,16 @@ async def change_quantity_handler(callback: CallbackQuery):
 # Ловим "db_delete"
 async def db_delete_handler(callback: CallbackQuery, state: FSMContext):
     user_id = int(callback.from_user.id)
-    car_id, _ = await parse_data(callback.data)
+    product_id, _ = await parse_data(callback.data)
 
-    await delete_item_to_cart(user_id=user_id, car_id=car_id)
+    await delete_item_to_cart(user_id=user_id, product_id=product_id)
     cart = await get_cart(user_id)
     
     if not cart:
-        await state.update_data(cart={})
+        await state.set_state(None)
+        
         await callback.message.delete()
-        await callback.answer(
-            show_alert=True,
-            text="Корзина пуста."
-        )
+        await callback.answer(show_alert=True, text="🛒 Корзина пуста.")
         return
 
     await callback.message.edit_reply_markup(reply_markup=get_cart_items_ik(cart))
@@ -42,30 +40,26 @@ async def db_delete_handler(callback: CallbackQuery, state: FSMContext):
 # Ловим "db_clean"
 async def db_clean_handler(callback: CallbackQuery, state: FSMContext):
     user_id = int(callback.from_user.id)
-
     await clean_cart(user_id=user_id)
-    await state.update_data(cart={})
+    
+    await state.set_state(None)
+    
     await callback.message.delete()
-    await callback.answer(
-        show_alert=True,
-        text="Корзина пуста."
-    )
+    await callback.answer(show_alert=True, text="🛒 Корзина пуста.")
 
 # Ловим "db_pay"
 async def db_pay_handler(callback: CallbackQuery, state: FSMContext):
-    await callback.message.delete()
     user_id = callback.from_user.id
-
     user = await get_user_data_from_db(user_id)
     address = user.address
     phone = user.phone
-    
     order_id = await make_order_id()
     cart = await get_cart(user_id)
     await put_order_id_to_cart(cart, order_id)
 
+    await callback.message.delete()
     if address and phone:
-        await order(chat_id=user_id, cart=cart)
+        await order(chat_id=user_id)
         await state.set_state(None)
     else:
         await callback.message.answer(
@@ -73,7 +67,6 @@ async def db_pay_handler(callback: CallbackQuery, state: FSMContext):
             reply_markup=None
         )
         await state.set_state(UserInfoStates.waiting_for_address)
-    print(await state.get_state())
 
 
 def register_cart(dp: Dispatcher):

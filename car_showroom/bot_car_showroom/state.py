@@ -3,8 +3,8 @@ from aiogram.fsm.state import State, StatesGroup
 
 class CatalogStates(StatesGroup):
     selecting_category = State()
-    selecting_brand = State()
-    selecting_car = State()
+    selecting_subcategory = State()
+    selecting_product = State()
 
 
 class CartStates(StatesGroup):

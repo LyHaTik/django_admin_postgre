@@ -29,8 +29,8 @@ async def successful_payment_handler(message: Message, state: FSMContext):
     order_data = []
     for item in cart:
         await mark_item_as_payed(item)
-        item_name = f'{item.car.brand.name} {item.car.model_name}'
-        item_price = item.car.price*item.quantity
+        item_name = item.product.name
+        item_price = item.product.price*item.quantity
         order = [
             item.order_id,
             datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
@@ -44,7 +44,7 @@ async def successful_payment_handler(message: Message, state: FSMContext):
         order_data.append(order)
     
     await save(order_data)
-    await state.update_data(cart={})
+
     await successful_payment(message)
 
 

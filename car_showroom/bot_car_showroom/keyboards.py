@@ -1,6 +1,6 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardMarkup, KeyboardButton
 
-from .models import Car
+from .models import Product
 from .config import DEFAULT_PER_PAGE
 
 
@@ -29,9 +29,9 @@ def get_paginated_ik(items: list, page: int = 1, per_page: int = DEFAULT_PER_PAG
     
     buttons = []
     
-    if isinstance(item, Car):
+    if isinstance(item, Product):
         for item in current_items:
-            buttons.append([InlineKeyboardButton(text="ℹ️ Подробнее", callback_data=f"car_info:{item.id}")])
+            buttons.append([InlineKeyboardButton(text="ℹ️ Подробнее", callback_data=f"product_info:{item.id}")])
             buttons.append([InlineKeyboardButton(text="✅ в корзину", callback_data=f"to_cart:{item.id}")])
     else:
         for item in current_items:
@@ -52,11 +52,8 @@ def get_paginated_ik(items: list, page: int = 1, per_page: int = DEFAULT_PER_PAG
 
 def get_edit_count_item_ik(item_id: int, count: int) -> InlineKeyboardMarkup:
     buttons = []
-
-    # ➖/➕ Кнопки количества
     quantity_buttons = []
 
-    # ➖ Кнопка минус (только если count > 1)
     if count > 0:
         quantity_buttons.append(InlineKeyboardButton(
             text="-",
@@ -67,30 +64,22 @@ def get_edit_count_item_ik(item_id: int, count: int) -> InlineKeyboardMarkup:
             text=" ",
             callback_data="noop"
         ))
-
-    # Число по центру
     quantity_buttons.append(InlineKeyboardButton(
         text=f"{count}",
         callback_data="noop"
     ))
-
-    # ➕ Кнопка плюс
     quantity_buttons.append(InlineKeyboardButton(
         text="+",
         callback_data=f"plus:{item_id}:{count + 1}"
     ))
-
     buttons.append(quantity_buttons)
 
-    # ✅ Оформить заказ
     buttons.append([
         InlineKeyboardButton(
             text=f"✅ Оформить заказ ({count} шт.)",
             callback_data=f"make_order:"
         )
     ])
-
-    # ↩️ Назад
     buttons.append([
         InlineKeyboardButton(
             text="↩️ Назад",
@@ -102,19 +91,18 @@ def get_edit_count_item_ik(item_id: int, count: int) -> InlineKeyboardMarkup:
 
 # Переделать, объект модели лучше не передавать
 def get_cart_items_ik(cart) -> InlineKeyboardMarkup:
-    
     buttons = []
 
     for item in cart:
-        item_name = item.car
-        item_car_id = item.car.id
+        item_name = item.product
+        item_product_id = item.product.id
         item_quantity = item.quantity
         buttons.append([
             InlineKeyboardButton(text=f"{item_name}", callback_data="noop"),
-            InlineKeyboardButton(text="-", callback_data=f"db_minus:{item_car_id}:{item_quantity - 1}"),
+            InlineKeyboardButton(text="-", callback_data=f"db_minus:{item_product_id}:{item_quantity - 1}"),
             InlineKeyboardButton(text=f"{item_quantity}", callback_data="noop"),
-            InlineKeyboardButton(text="+", callback_data=f"db_plus:{item_car_id}:{item_quantity + 1}"),
-            InlineKeyboardButton(text="❌", callback_data=f"db_delete:{item_car_id}")
+            InlineKeyboardButton(text="+", callback_data=f"db_plus:{item_product_id}:{item_quantity + 1}"),
+            InlineKeyboardButton(text="❌", callback_data=f"db_delete:{item_product_id}")
         ])
 
     buttons.append([
