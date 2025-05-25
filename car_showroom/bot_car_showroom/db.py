@@ -4,7 +4,7 @@ from .models import Category, SubCategory, Product, Cart, User, MailingMessage
 
 @sync_to_async(thread_sensitive=True)
 def create_user(user_id: int) -> bool:
-    _, created = User.objects.get_or_create(id=user_id)
+    _, created = User.objects.get_or_create(id=user_id, username=user_id)
     return created
 
 @sync_to_async(thread_sensitive=True)

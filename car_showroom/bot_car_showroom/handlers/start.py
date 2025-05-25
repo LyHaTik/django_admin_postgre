@@ -21,7 +21,7 @@ async def start_handler(message: types.Message, state: FSMContext):
         await state.update_data(cart={})
     else:
         invite_link = f"https://t.me/{CHANNEL_NAME.lstrip('@')}"
-        await message.answer(f"Пожалуйста, подпишитесь на канал: {invite_link}")
+        await message.answer(f"Пожалуйста, подпишитесь на канал: https://t.me/+iYVd93aFJskxOGMy")
 
 
 def register_start(dp: Dispatcher):
