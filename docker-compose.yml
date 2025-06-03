@@ -1,0 +1,42 @@
+services:
+  db:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_DB: bot_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+
+  django:
+    build:
+      context: .
+      dockerfile: docker_django/Dockerfile
+    container_name: django-admin
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    volumes:
+      - ./shared_media:/online_shop/shared_media
+    env_file: .env
+    environment:
+      - DATABASE_URL=postgres://postgres:postgres@db:5432/bot_db
+  bot:
+    build:
+      context: .
+      dockerfile: docker_bot/Dockerfile
+    container_name: telegram-bot
+    ports:
+    - "8001:8001"
+    depends_on:
+      - db
+    volumes:
+      - ./shared_media:/bot/shared_media
+    env_file: .env
+volumes:
+  pgdata:
